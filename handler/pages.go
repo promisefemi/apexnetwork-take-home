@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/boltdb/bolt"
+	"github.com/promisefemi/apexnetwork-take-home/model"
+	"github.com/promisefemi/apexnetwork-take-home/util"
 	"log"
-	"math/rand"
 	"net/http"
-	"strings"
-	"time"
 )
 
 type PageHandler struct {
@@ -21,7 +20,7 @@ func NewPageHandler(db *bolt.DB) *PageHandler {
 
 func (p *PageHandler) Register(rw http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
-	response := &ApiResponse{
+	response := &model.ApiResponse{
 		Status: false,
 	}
 
@@ -33,17 +32,40 @@ func (p *PageHandler) Register(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usedId := generateUserId(firstName, lastName)
+	userID := util.GenerateUserId(firstName, lastName)
+	user := &model.User{
+		FirstName: firstName,
+		LastName:  lastName,
+		UserID:    userID,
+		Wallet:    0,
+		Asset:     "sat",
+	}
 
-	p.db.Update(func(tx *bolt.Tx) error {
+	err := p.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte("users"))
 		if err != nil {
 			log.Printf("database error - %s", err)
-			http.Error(rw, "Something went wrong", http.StatusInternalServerError)
+			return fmt.Errorf("error unable to encode struct")
 		}
-
+		userByte := util.EncodeStruct(user)
+		if userByte == nil {
+			return fmt.Errorf("error unable to encode struct")
+		}
+		return bucket.Put([]byte(userID), userByte)
 	})
 
+	if err != nil {
+		log.Printf("%s", err)
+		response.Message = "Something went wrong, unable to create new user"
+		p.JSON(response, rw)
+	}
+
+	response.Status = true
+	response.Message = "New user created, you can now start games"
+	response.Data = user
+
+	p.JSON(response, rw)
+	return
 }
 
 func (p *PageHandler) Start(res http.ResponseWriter, r *http.Request) {
@@ -73,9 +95,4 @@ func (p *PageHandler) JSON(data any, res http.ResponseWriter) {
 		return
 	}
 	_, err = res.Write(jsonByte)
-}
-
-func generateUserId(firstname, lastname string) string {
-	rand.Seed(time.Now().Unix())
-	return fmt.Sprintf("%s-%s-%d", strings.ToLower(firstname), strings.ToLower(lastname), rand.Int())
 }

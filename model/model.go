@@ -7,7 +7,9 @@ type ApiResponse struct {
 }
 
 type User struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	UserID    string `json:"userID"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	UserID    string `json:"user_i_d"`
+	Wallet    int    `json:"wallet"`
+	Asset     string `json:"asset"`
 }
