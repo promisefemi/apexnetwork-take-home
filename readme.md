@@ -21,6 +21,8 @@ File Structure:
 
 /handler/handler.go -- Contains all api endpoints
 
+/model/model.go -- Contains all data models
+
 /util/util.go - Contains helpers and utility functions
 
 /main.go - Entry point for application
