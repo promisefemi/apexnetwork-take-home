@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/boltdb/bolt"
 	"github.com/go-chi/chi"
 	"github.com/promisefemi/apexnetwork-take-home/handler"
@@ -21,9 +22,12 @@ func main() {
 	router.Post("/fund-wallet", pageHandler.FundWallet)
 	router.Post("/get-wallet-balance", pageHandler.GetWalletBalance)
 	router.Post("/roll-dice", pageHandler.Roll)
-	router.Post("/end-game", pageHandler.Roll)
-	router.Post("/start-game", pageHandler.Roll)
+	router.Post("/end-game", pageHandler.EndGame)
+	router.Post("/start-game", pageHandler.StartGame)
+	router.Post("/check-active-game", pageHandler.CheckActiveGame)
+	router.Post("/transactions", pageHandler.Transactions)
 
+	fmt.Printf("Server listening on port: %s", port)
 	if err := http.ListenAndServe(port, router); err != nil {
 		log.Fatalln(err)
 	}

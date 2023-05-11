@@ -1,15 +1,29 @@
 package model
 
 type ApiResponse struct {
-	Status  bool        `json:"status,omitempty"`
-	Message string      `json:"message,omitempty"`
+	Status  bool        `json:"status"`
+	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
 type User struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	UserID    string `json:"user_i_d"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	UserID    string `json:"userID"`
 	Wallet    int    `json:"wallet"`
 	Asset     string `json:"asset"`
 }
+
+type Transaction struct {
+	Type   TransactionType `json:"type"`
+	Time   int64           `json:"time"`
+	Amount int             `json:"amount"`
+	UserID string          `json:"userID"`
+}
+
+type TransactionType string
+
+const (
+	DEBIT  TransactionType = "DEBIT"
+	CREDIT TransactionType = "CREDIT"
+)

@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -21,4 +22,17 @@ func EncodeStruct(data any) []byte {
 		return nil
 	}
 	return jsonByte
+}
+func DecodeStruct(source []byte, destination any) error {
+	err := json.Unmarshal(source, destination)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Itob(v int) []byte {
+	b := make([]byte, 8)
+	binary.BigEndian.PutUint64(b, uint64(v))
+	return b
 }
