@@ -15,12 +15,19 @@ import (
 const (
 	UserBucket        string = "users"
 	TransactionBucket string = "transactions"
+	GameSessionBucket string = "gameSession"
+	RollSessionBucket string = "rollSession"
+
+	GameStartCost int = 20
+	FirstRowCost  int = 5
 )
 
 var (
 	ErrUserNotExist            error = errors.New("user does not exist, kindly create user account ")
 	ErrUnableToFundWallet      error = errors.New("unable to fund your wallet, please contact support")
 	ErrNoTransactionsAvailable error = errors.New("no transactions available")
+	ErrUnableToStartGame       error = errors.New("unable to start game, please contact support")
+	ErrGameInSession           error = errors.New("you already have an active game in progress, end previous game to start another ")
 )
 
 type PageHandler struct {
@@ -87,7 +94,141 @@ func (p *PageHandler) Register(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PageHandler) StartGame(rw http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
 
+	response := model.ApiResponse{
+		Status: false,
+	}
+	userID := r.PostFormValue("userId")
+
+	if userID == "" {
+		response.Message = "Please enter User ID"
+		p.JSON(response, rw)
+	}
+
+	user, err := p.getUser(userID)
+	if err != nil {
+		log.Println(err)
+		response.Message = err.Error()
+		p.JSON(response, rw)
+		return
+	}
+
+	if user.Wallet < 20 {
+		response.Message = "You do not have enough funds to start the game, please fund your account"
+		p.JSON(response, rw)
+		return
+	}
+
+	err = p.db.View(func(tx *bolt.Tx) error {
+		gameSessionBucket := tx.Bucket([]byte(GameSessionBucket))
+		if gameSessionBucket == nil {
+			log.Printf("error unable to get game session bucket - %s", err)
+			return nil
+		}
+
+		c := gameSessionBucket.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var previousSession model.GameSession
+			err := util.DecodeStruct(v, &previousSession)
+			if err != nil {
+				log.Printf("error unable to parse game session - %s", err)
+				continue
+			}
+			if previousSession.UserId == userID && previousSession.GameStatus == model.INPROGRESS {
+				return ErrGameInSession
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		response.Message = err.Error()
+		p.JSON(response, rw)
+		return
+	}
+
+	session := model.GameSession{
+		SessionID:  util.GenerateId(),
+		UserId:     userID,
+		GameStatus: model.INPROGRESS,
+	}
+
+	transaction := model.Transaction{
+		Type:        model.DEBIT,
+		Time:        time.Now().Unix(),
+		Description: "Started new Game",
+		Amount:      GameStartCost,
+		UserID:      userID,
+	}
+
+	user.Wallet -= transaction.Amount
+
+	err = p.db.Update(func(tx *bolt.Tx) error {
+		userBucket := tx.Bucket([]byte(UserBucket))
+		if userBucket == nil {
+			log.Printf("database error - %s", err)
+			return ErrUserNotExist
+		}
+
+		transactionBucket, err := tx.CreateBucketIfNotExists([]byte(TransactionBucket))
+		if err != nil {
+			log.Printf("error unable to create transactions bucket - %s", err)
+			return ErrUnableToStartGame
+		}
+
+		gameSessionBucket, err := tx.CreateBucketIfNotExists([]byte(GameSessionBucket))
+		if err != nil {
+			log.Printf("error unable to create game session bucket - %s", err)
+			return ErrUnableToStartGame
+		}
+
+		id, _ := transactionBucket.NextSequence()
+		transactionByte := util.EncodeStruct(transaction)
+		if transactionByte == nil {
+			log.Println("error encoding transaction struct")
+			return ErrUnableToFundWallet
+		}
+
+		gameID, _ := gameSessionBucket.NextSequence()
+		gameSessionByte := util.EncodeStruct(session)
+		if gameSessionByte == nil {
+			log.Println("error encoding transaction struct")
+			return ErrUnableToFundWallet
+		}
+		userByte := util.EncodeStruct(user)
+		if userByte == nil {
+			log.Println("error encoding user struct")
+			return ErrUnableToFundWallet
+		}
+
+		if err := transactionBucket.Put(util.Itob(int(id)), transactionByte); err != nil {
+			log.Println("error inserting transaction")
+			return ErrUnableToStartGame
+		}
+		if err := userBucket.Put([]byte(userID), userByte); err != nil {
+			log.Println("error inserting transaction")
+			return ErrUnableToStartGame
+		}
+		if err := gameSessionBucket.Put(util.Itob(int(gameID)), gameSessionByte); err != nil {
+			log.Println("error inserting session")
+			return ErrUnableToStartGame
+		}
+		return nil
+	})
+
+	if err != nil {
+		response.Message = err.Error()
+		p.JSON(response, rw)
+		return
+	}
+
+	response.Status = true
+	response.Message = "Congrats your game session started, you can now roll"
+	response.Data = session
+
+	p.JSON(response, rw)
+	return
 }
 
 func (p *PageHandler) Roll(rw http.ResponseWriter, r *http.Request) {
@@ -131,10 +272,11 @@ func (p *PageHandler) FundWallet(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	transaction := model.Transaction{
-		Type:   model.CREDIT,
-		Time:   time.Now().Unix(),
-		Amount: 155,
-		UserID: userID,
+		Type:        model.CREDIT,
+		Time:        time.Now().Unix(),
+		Description: "Wallet Funding",
+		Amount:      155,
+		UserID:      userID,
 	}
 
 	user.Wallet += transaction.Amount

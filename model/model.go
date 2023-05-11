@@ -15,10 +15,11 @@ type User struct {
 }
 
 type Transaction struct {
-	Type   TransactionType `json:"type"`
-	Time   int64           `json:"time"`
-	Amount int             `json:"amount"`
-	UserID string          `json:"userID"`
+	Type        TransactionType `json:"type"`
+	Description string          `json:"description"`
+	Time        int64           `json:"time"`
+	Amount      int             `json:"amount"`
+	UserID      string          `json:"userID"`
 }
 
 type TransactionType string
@@ -26,4 +27,25 @@ type TransactionType string
 const (
 	DEBIT  TransactionType = "DEBIT"
 	CREDIT TransactionType = "CREDIT"
+)
+
+type GameSession struct {
+	SessionID  string            `json:"sessionID"`
+	UserId     string            `json:"userID"`
+	GameStatus GameSessionStatus `json:"gameStatus"`
+}
+
+type RollSession struct {
+	GameSessionID string            `json:"gameSessionID"`
+	WinningGame   int               `json:"winningGame"`
+	FirstRoll     int               `json:"firstRow"`
+	SecondRoll    int               `json:"secondRow"`
+	RowStatus     GameSessionStatus `json:"rowStatus"`
+}
+
+type GameSessionStatus string
+
+const (
+	INPROGRESS GameSessionStatus = "IN_PROGRESS"
+	COMPLETED  GameSessionStatus = "COMPLETED"
 )
