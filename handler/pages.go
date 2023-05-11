@@ -189,6 +189,30 @@ func (p *PageHandler) FundWallet(rw http.ResponseWriter, r *http.Request) {
 	return
 }
 func (p *PageHandler) GetWalletBalance(rw http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
+
+	response := model.ApiResponse{
+		Status: false,
+	}
+	userID := r.URL.Query().Get("userId")
+
+	if userID == "" {
+		response.Message = "Please enter User ID"
+		p.JSON(response, rw)
+	}
+
+	user, err := p.getUser(userID)
+	if err != nil {
+		log.Println(err)
+		response.Message = err.Error()
+		p.JSON(response, rw)
+		return
+	}
+
+	response.Status = true
+	response.Data = user
+	p.JSON(response, rw)
+	return
 
 }
 func (p *PageHandler) Transactions(rw http.ResponseWriter, r *http.Request) {

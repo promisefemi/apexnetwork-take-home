@@ -20,7 +20,7 @@ func main() {
 
 	router.Post("/register", pageHandler.Register)
 	router.Post("/fund-wallet", pageHandler.FundWallet)
-	router.Post("/get-wallet-balance", pageHandler.GetWalletBalance)
+	router.Get("/get-wallet-balance", pageHandler.GetWalletBalance)
 	router.Post("/roll-dice", pageHandler.Roll)
 	router.Post("/end-game", pageHandler.EndGame)
 	router.Post("/start-game", pageHandler.StartGame)
