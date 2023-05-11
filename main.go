@@ -24,7 +24,7 @@ func main() {
 	router.Post("/roll-dice", pageHandler.Roll)
 	router.Post("/end-game", pageHandler.EndGame)
 	router.Post("/start-game", pageHandler.StartGame)
-	router.Post("/check-active-game", pageHandler.CheckActiveGame)
+	router.Get("/check-active-game", pageHandler.CheckActiveGame)
 	router.Get("/transactions", pageHandler.Transactions)
 
 	fmt.Printf("Server listening on port: %s", port)

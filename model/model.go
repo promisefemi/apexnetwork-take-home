@@ -36,7 +36,9 @@ type GameSession struct {
 }
 
 type RollSession struct {
+	RollID        string            `json:"rollID"`
 	GameSessionID string            `json:"gameSessionID"`
+	UserID        string            `json:"userID"`
 	WinningGame   int               `json:"winningGame"`
 	FirstRoll     int               `json:"firstRow"`
 	SecondRoll    int               `json:"secondRow"`

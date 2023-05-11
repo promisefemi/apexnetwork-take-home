@@ -20,6 +20,21 @@ func GenerateId() string {
 	return fmt.Sprintf("%d", rand.Int())
 }
 
+func GenerateDiceRoll() int {
+	return generateDiceRoll(1, 6)
+}
+
+func GenerateDiceSessionRoll() int {
+	return generateDiceRoll(2, 12)
+}
+
+func generateDiceRoll(min, max int) int {
+	rand.Seed(time.Now().Unix())
+
+	return rand.Intn(max-min) + min
+
+}
+
 func EncodeStruct(data any) []byte {
 	jsonByte, err := json.Marshal(data)
 	if err != nil {

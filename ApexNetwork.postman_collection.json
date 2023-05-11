@@ -1,0 +1,226 @@
+{
+	"info": {
+		"_postman_id": "305e2d95-b105-4746-a30b-3fb8601954f8",
+		"name": "ApexNetwork",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register new User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "first_name",
+							"value": "Promise",
+							"type": "default"
+						},
+						{
+							"key": "last_name",
+							"value": "Femi",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:9000/register",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fund Wallet",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userId",
+							"value": "promise-femi-7859055210736347670",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:9000/fund-wallet",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"fund-wallet"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userId",
+							"value": "promise-femi-7859055210736347670",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:9000/start-game",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"start-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Roll Dice",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userId",
+							"value": "promise-femi-7859055210736347670",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:9000/roll-dice",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"roll-dice"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "End Game",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "userId",
+							"value": "promise-femi-7859055210736347670",
+							"type": "default"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:9000/end-game",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"end-game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Transactions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/transactions?userId=promise-femi-7859055210736347670",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "promise-femi-7859055210736347670"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Active Game",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/check-active-game?userId=promise-femi-9093202677817617626",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"check-active-game"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "promise-femi-9093202677817617626"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Details/Wallet Balance",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9000/get-wallet-balance?userId=promise-femi-7859055210736347670",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"get-wallet-balance"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "promise-femi-7859055210736347670"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
