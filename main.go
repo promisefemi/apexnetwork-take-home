@@ -25,7 +25,7 @@ func main() {
 	router.Post("/end-game", pageHandler.EndGame)
 	router.Post("/start-game", pageHandler.StartGame)
 	router.Post("/check-active-game", pageHandler.CheckActiveGame)
-	router.Post("/transactions", pageHandler.Transactions)
+	router.Get("/transactions", pageHandler.Transactions)
 
 	fmt.Printf("Server listening on port: %s", port)
 	if err := http.ListenAndServe(port, router); err != nil {

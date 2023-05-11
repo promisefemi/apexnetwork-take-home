@@ -18,8 +18,9 @@ const (
 )
 
 var (
-	ErrUserNotExist       error = errors.New("user does not exist, kindly create user account ")
-	ErrUnableToFundWallet error = errors.New("unable to fund your waller, please contact support")
+	ErrUserNotExist            error = errors.New("user does not exist, kindly create user account ")
+	ErrUnableToFundWallet      error = errors.New("unable to fund your wallet, please contact support")
+	ErrNoTransactionsAvailable error = errors.New("no transactions available")
 )
 
 type PageHandler struct {
@@ -191,7 +192,61 @@ func (p *PageHandler) GetWalletBalance(rw http.ResponseWriter, r *http.Request) 
 
 }
 func (p *PageHandler) Transactions(rw http.ResponseWriter, r *http.Request) {
+	_ = r.ParseForm()
 
+	response := model.ApiResponse{
+		Status: false,
+	}
+	userID := r.URL.Query().Get("userId")
+
+	if userID == "" {
+		response.Message = "Please enter User ID"
+		p.JSON(response, rw)
+	}
+
+	_, err := p.getUser(userID)
+	if err != nil {
+		log.Println(err)
+		response.Message = err.Error()
+		p.JSON(response, rw)
+		return
+	}
+
+	transactions := make([]model.Transaction, 0)
+
+	err = p.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(TransactionBucket))
+		if bucket == nil {
+			log.Printf("error no transactions table - %s", err)
+			return ErrNoTransactionsAvailable
+		}
+
+		c := bucket.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var transaction model.Transaction
+			err := util.DecodeStruct(v, &transaction)
+			if err != nil {
+				log.Printf("error decoding byte to struct %s", err)
+				continue
+			}
+			if transaction.UserID == userID {
+				transactions = append(transactions, transaction)
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		response.Message = err.Error()
+		response.Data = transactions
+		p.JSON(response, rw)
+		return
+	}
+
+	response.Status = true
+	response.Data = transactions
+	p.JSON(response, rw)
+	return
 }
 
 func (p *PageHandler) getUser(userID string) (*model.User, error) {
