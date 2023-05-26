@@ -25,4 +25,4 @@ File Structure:
 
 /util/util.go - Contains helpers and utility functions
 
-/main.go - Entry point for applications
+/main.go - Entry point for application
